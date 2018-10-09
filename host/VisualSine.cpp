@@ -36,6 +36,7 @@ void reshapeFunc( GLsizei width, GLsizei height );
 void keyboardFunc( unsigned char, int, int );
 void mouseFunc( int button, int state, int x, int y );
 //void drawSun( SAMPLE * stereobuffer, int len, int channels);
+void drawTime();
 
 // our datetype
 #define SAMPLE float
@@ -395,6 +396,36 @@ void idleFunc() {
 }*/
 
 //-----------------------------------------------------------------------------
+// Name: drawTime()
+// Desc: draw time domain
+//-----------------------------------------------------------------------------
+void drawTime() {
+    // line width
+    glLineWidth(1.0g);
+    // define a starting point
+    GLfloat x = -5;
+    // increment
+    GLfloat xinc = ::fabs(x*2 / g_bufferSize);
+    
+    // color
+    glColor3ub(190, 190, 190);
+    
+    // start primitive
+    glBegin(GL_LINE_STRIP);
+    
+    // loop over buffer
+    for (int i = 0; i < g_bufferSize; i++) {
+        // plot
+        glVertex2f(x, 3*g_buffer[i]);
+        // increment x
+        x += xinc;
+    }
+    
+    // end primitive
+    glEnd();
+}
+
+//-----------------------------------------------------------------------------
 // Name: displayFunc()
 // Desc: callback function invoked to draw the client area
 //-----------------------------------------------------------------------------
@@ -413,30 +444,7 @@ void displayFunc( )
 //    memcpy( buffer, g_audio_buffer, g_buffer_size * sizeof(SAMPLE) );
 //    drawSun( g_stereo_buffer, g_buffer_size, 1 );
     
-    // line width
-    glLineWidth( 1.0 );
-    // define a starting point
-    GLfloat x = -5;
-    // increment
-    GLfloat xinc = ::fabs(x*2 / g_bufferSize);
-    
-    // color
-    glColor3f( .5, 1, .5 );
-    
-    // start primitive
-    glBegin( GL_LINE_STRIP );
-    
-    // loop over buffer
-    for( int i = 0; i < g_bufferSize; i++ )
-    {
-        // plot
-        glVertex2f( x, 3*g_buffer[i] );
-        // increment x
-        x += xinc;
-    }
-    
-    // end primitive
-    glEnd();
+    drawTime();
     
     // flush!
     glFlush( );

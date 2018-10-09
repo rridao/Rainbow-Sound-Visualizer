@@ -71,7 +71,7 @@ SAMPLE g_back_buffer[SND_BUFFER_SIZE]; // for lissajous
 SAMPLE g_cur_buffer[SND_BUFFER_SIZE];  // current mono buffer (now playing), for lissajous
 SAMPLE g_stereo_buffer[SND_BUFFER_SIZE*2]; // current stereo buffer (now playing)
 SAMPLE g_audio_buffer[SND_BUFFER_SIZE]; // latest mono buffer (possibly preview)
-GLint g_buffer_size = SND_BUFFER_SIZE;
+GLint  g_buffer_size = SND_BUFFER_SIZE;
 
 
 
@@ -436,7 +436,7 @@ void displayFunc( )
     // copy currently playing audio into buffer
     memcpy( buffer, g_audio_buffer, g_buffer_size * sizeof(SAMPLE) );
     
-    drawSun( g_stereo_buffer, g_buffer_size, 1 );
+//    drawSun( g_stereo_buffer, g_buffer_size, 1 );
     
     // line width
     glLineWidth( 1.0 );

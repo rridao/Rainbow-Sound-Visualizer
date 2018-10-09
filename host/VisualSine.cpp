@@ -403,8 +403,8 @@ void displayFunc( )
     // local state
     static GLfloat zrot = 0.0f, c = 0.0f;
     
-    // local variables
-    SAMPLE * buffer = g_fft_buffer;
+//    // local variables
+//    SAMPLE * buffer = g_fft_buffer;
     
     // clear the color and depth buffers
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );

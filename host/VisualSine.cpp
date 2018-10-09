@@ -35,7 +35,7 @@ void displayFunc();
 void reshapeFunc( GLsizei width, GLsizei height );
 void keyboardFunc( unsigned char, int, int );
 void mouseFunc( int button, int state, int x, int y );
-void drawSun( SAMPLE * stereobuffer, int len, int channels);
+//void drawSun( SAMPLE * stereobuffer, int len, int channels);
 
 // our datetype
 #define SAMPLE float
@@ -61,29 +61,31 @@ long g_bufferSize;
 
 // Global Variables //
 bool g_draw_dB = false;
-bool g_drawSun = true;
+//bool g_drawSun = true;
 ChucK * the_chuck = NULL;
-GLfloat g_sunScale = 0.45f;
+//GLfloat g_sunScale = 0.45f;
 GLint g_delay = SND_BUFFER_SIZE/2;
 
-// Global Audio Buffer //
+// Global Audio Buffer (From sound peek) //
 SAMPLE g_fft_buffer[SND_FFT_SIZE];
+SAMPLE g_audio_buffer[SND_BUFFER_SIZE]; // latest mono buffer (possibly preview)
+SAMPLE g_stereo_buffer[SND_BUFFER_SIZE*2]; // current stereo buffer (now playing)
 SAMPLE g_back_buffer[SND_BUFFER_SIZE]; // for lissajous
 SAMPLE g_cur_buffer[SND_BUFFER_SIZE];  // current mono buffer (now playing), for lissajous
-SAMPLE g_stereo_buffer[SND_BUFFER_SIZE*2]; // current stereo buffer (now playing)
-SAMPLE g_audio_buffer[SND_BUFFER_SIZE]; // latest mono buffer (possibly preview)
-GLint  g_buffer_size = SND_BUFFER_SIZE;
-
+//GLfloat g_window[SND_BUFFER_SIZE]; // DFT transform window
+//GLfloat g_log_positions[SND_FFT_SIZE/2]; // precompute positions for log spacing
+//GLint g_buffer_size = SND_BUFFER_SIZE; //MIGHT NOT NEED
+//GLint g_fft_size = SND_FFT_SIZE;
 
 
 //-----------------------------------------------------------------------------
 // name: callme()
 // desc: audio callback
 //-----------------------------------------------------------------------------
-int callme( void * outputBuffer, void * inputBuffer, unsigned int numFrames,
-            double streamTime, RtAudioStreamStatus status, void * data ) {
+int callme (void * outputBuffer, void * inputBuffer, unsigned int numFrames,
+           double streamTime, RtAudioStreamStatus status, void * data) {
     // cast!
-    SAMPLE * input = (SAMPLE *)inputBuffer;
+    SAMPLE * input  = (SAMPLE *)inputBuffer;
     SAMPLE * output = (SAMPLE *)outputBuffer;
     
     // compute chuck!
@@ -103,15 +105,14 @@ int callme( void * outputBuffer, void * inputBuffer, unsigned int numFrames,
         }
     }
     
-    // For sun???
-    // copy
-    memcpy( g_stereo_buffer, input, numFrames * 2 * sizeof(SAMPLE) );
-    // convert stereo to mono
-    for( int i = 0; i < numFrames; i++)
-    {
-        g_audio_buffer[i] = g_stereo_buffer[i*2] + g_stereo_buffer[i*2+1];
-        g_audio_buffer[i] /= 2.0f;
-    }
+//    // For sun???
+//    // copy
+//    memcpy( g_stereo_buffer, input, numFrames * 2 * sizeof(SAMPLE) );
+//    // convert stereo to mono
+//    for (int i = 0; i < numFrames; i++) {
+//        g_audio_buffer[i] = g_stereo_buffer[i*2] + g_stereo_buffer[i*2+1];
+//        g_audio_buffer[i] /= 2.0f;
+//    }
     
     
     
@@ -122,8 +123,7 @@ int callme( void * outputBuffer, void * inputBuffer, unsigned int numFrames,
 // name: main()
 // desc: entry point
 //-----------------------------------------------------------------------------
-int main( int argc, char ** argv )
-{
+int main (int argc, char ** argv) {
     // instantiate RtAudio object
     RtAudio audio;
     // variables
@@ -132,8 +132,7 @@ int main( int argc, char ** argv )
     unsigned int bufferFrames = 1024;
     
     // check for audio devices
-    if( audio.getDeviceCount() < 1 )
-    {
+    if (audio.getDeviceCount() < 1) {
         // nopes
         cout << "no audio devices found!" << endl;
         exit( 1 );
@@ -163,9 +162,7 @@ int main( int argc, char ** argv )
     try {
         // open a stream
         audio.openStream( &oParams, &iParams, MY_FORMAT, MY_SRATE, &bufferFrames, &callme, (void *)&bufferBytes, &options );
-    }
-    catch( RtError& e )
-    {
+    } catch (RtError& e) {
         // error!
         cout << e.getMessage() << endl;
         exit( 1 );
@@ -202,9 +199,7 @@ int main( int argc, char ** argv )
         
         // stop the stream.
         audio.stopStream();
-    }
-    catch( RtError& e )
-    {
+    } catch (RtError& e) {
         // print error message
         cout << e.getMessage() << endl;
         goto cleanup;
@@ -212,8 +207,7 @@ int main( int argc, char ** argv )
     
 cleanup:
     // close if open
-    if( audio.isStreamOpen() )
-        audio.closeStream();
+    if (audio.isStreamOpen()) audio.closeStream();
     
     // done
     return 0;
@@ -221,10 +215,9 @@ cleanup:
 
 //-----------------------------------------------------------------------------
 // Name: initGfx()
-// Desc: called when window size changes
+// Desc:
 //-----------------------------------------------------------------------------
-void initGfx()
-{
+void initGfx() {
     // double buffer, use rgb color, enable depth buffer
     glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH );
     // initialize the window size
@@ -257,8 +250,7 @@ void initGfx()
 // Name: reshapeFunc()
 // Desc: called when window size changes
 //-----------------------------------------------------------------------------
-void reshapeFunc( GLsizei w, GLsizei h )
-{
+void reshapeFunc( GLsizei w, GLsizei h ) {
     // save the new window size
     g_width = w; g_height = h;
     // map the view port to the client area
@@ -281,8 +273,7 @@ void reshapeFunc( GLsizei w, GLsizei h )
 // Name: keyboardFunc()
 // Desc: key event
 //-----------------------------------------------------------------------------
-void keyboardFunc( unsigned char key, int x, int y )
-{
+void keyboardFunc( unsigned char key, int x, int y ) {
     switch( key )
     {
 //        case 'l':
@@ -305,8 +296,7 @@ void keyboardFunc( unsigned char key, int x, int y )
 // Name: mouseFunc()
 // Desc: handles mouse stuff
 //-----------------------------------------------------------------------------
-void mouseFunc( int button, int state, int x, int y )
-{
+void mouseFunc( int button, int state, int x, int y ) {
     if( button == GLUT_LEFT_BUTTON )
     {
         // when left mouse button is down
@@ -347,8 +337,7 @@ void idleFunc() {
 // name: drawSun()
 // desc: draws lissajous sun
 //-----------------------------------------------------------------------------
-void drawSun( SAMPLE * stereobuffer, int len, int channels)
-{
+/*void drawSun( SAMPLE * stereobuffer, int len, int channels) {
     float x, y;
     SAMPLE * buffer;
     
@@ -403,7 +392,7 @@ void drawSun( SAMPLE * stereobuffer, int len, int channels)
     // hmm...
     if( channels == 1 )
         memcpy( g_back_buffer, buffer, len * sizeof(SAMPLE) );
-}
+}*/
 
 //-----------------------------------------------------------------------------
 // Name: displayFunc()
@@ -420,9 +409,8 @@ void displayFunc( )
     // clear the color and depth buffers
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     
-    // copy currently playing audio into buffer
+//    // copy currently playing audio into buffer
 //    memcpy( buffer, g_audio_buffer, g_buffer_size * sizeof(SAMPLE) );
-    
 //    drawSun( g_stereo_buffer, g_buffer_size, 1 );
     
     // line width

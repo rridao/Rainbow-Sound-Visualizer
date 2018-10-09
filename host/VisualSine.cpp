@@ -63,7 +63,7 @@ long g_bufferSize;
 bool g_draw_dB = false;
 bool g_drawSun = true;
 ChucK * the_chuck = NULL;
-GLfloat g_sun_scale = 0.45f;
+GLfloat g_sunScale = 0.45f;
 GLint g_delay = SND_BUFFER_SIZE/2;
 
 // Global Audio Buffer //
@@ -190,7 +190,7 @@ int main( int argc, char ** argv )
     the_chuck -> init();
     
     // TODO: run a chuck program
-    //    the_chuck -> compileFile("kermit.ck", "", 1);//, const std::string & argsTogether, int count = 1 );
+    the_chuck -> compileFile("kermit.ck", "", 1);//, const std::string & argsTogether, int count = 1 );
     
     // go for it
     try {
@@ -381,20 +381,20 @@ void drawSun( SAMPLE * stereobuffer, int len, int channels)
     glBegin( GL_LINE_STRIP );
     for( int i = 0; i < len * channels; i += channels )
     {
-        x = buffer[i] * g_sun_scale;
+        x = buffer[i] * g_sunScale;
         if( channels == 1 )
         {
             // delay
             y = (i - g_delay >= 0) ? buffer[i-g_delay] : g_back_buffer[len + i-g_delay];
-            y *= g_sun_scale;
+            y *= g_sunScale;
         }
         else
         {
-            y = buffer[i + channels-1] * g_sun_scale;
+            y = buffer[i + channels-1] * g_sunScale;
         }
         
         glVertex3f( x, y, 0.0f );
-        // glVertex3f( x, y, sqrt( x*x + y*y ) * -g_sun_scale );
+        // glVertex3f( x, y, sqrt( x*x + y*y ) * -g_sunScale );
     }
     glEnd();
     // restore matrix state

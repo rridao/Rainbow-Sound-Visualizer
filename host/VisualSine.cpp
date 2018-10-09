@@ -35,6 +35,7 @@ void displayFunc();
 void reshapeFunc( GLsizei width, GLsizei height );
 void keyboardFunc( unsigned char, int, int );
 void mouseFunc( int button, int state, int x, int y );
+void drawSun( SAMPLE * stereobuffer, int len, int channels);
 
 // our datetype
 #define SAMPLE float
@@ -116,9 +117,6 @@ int callme( void * outputBuffer, void * inputBuffer, unsigned int numFrames,
     
     return 0;
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 // name: main()
@@ -221,11 +219,8 @@ cleanup:
     return 0;
 }
 
-
-
-
 //-----------------------------------------------------------------------------
-// Name: reshapeFunc()
+// Name: initGfx()
 // Desc: called when window size changes
 //-----------------------------------------------------------------------------
 void initGfx()
@@ -258,9 +253,6 @@ void initGfx()
     glEnable( GL_DEPTH_TEST );
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 // Name: reshapeFunc()
 // Desc: called when window size changes
@@ -285,9 +277,6 @@ void reshapeFunc( GLsizei w, GLsizei h )
     gluLookAt( 0.0f, 0.0f, 10.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f );
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 // Name: keyboardFunc()
 // Desc: key event
@@ -311,8 +300,6 @@ void keyboardFunc( unsigned char key, int x, int y )
     
     glutPostRedisplay( );
 }
-
-
 
 //-----------------------------------------------------------------------------
 // Name: mouseFunc()
@@ -434,7 +421,7 @@ void displayFunc( )
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     
     // copy currently playing audio into buffer
-    memcpy( buffer, g_audio_buffer, g_buffer_size * sizeof(SAMPLE) );
+//    memcpy( buffer, g_audio_buffer, g_buffer_size * sizeof(SAMPLE) );
     
 //    drawSun( g_stereo_buffer, g_buffer_size, 1 );
     

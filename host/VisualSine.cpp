@@ -8,6 +8,7 @@
 //-----------------------------------------------------------------------------
 #include "RtAudio/RtAudio.h"
 #include "chuck.h"
+#include "chuck_fft.h"
 #include <math.h>
 #include <stdlib.h>
 #include <iostream>
@@ -72,7 +73,7 @@ SAMPLE g_audio_buffer[SND_BUFFER_SIZE]; // latest mono buffer (possibly preview)
 SAMPLE g_stereo_buffer[SND_BUFFER_SIZE*2]; // current stereo buffer (now playing)
 SAMPLE g_back_buffer[SND_BUFFER_SIZE]; // for lissajous
 SAMPLE g_cur_buffer[SND_BUFFER_SIZE];  // current mono buffer (now playing), for lissajous
-//GLfloat g_window[SND_BUFFER_SIZE]; // DFT transform window
+GLfloat g_window[SND_BUFFER_SIZE]; // DFT transform window
 //GLfloat g_log_positions[SND_FFT_SIZE/2]; // precompute positions for log spacing
 //GLint g_buffer_size = SND_BUFFER_SIZE; //MIGHT NOT NEED
 //GLint g_fft_size = SND_FFT_SIZE;
@@ -106,13 +107,13 @@ int callme (void * outputBuffer, void * inputBuffer, unsigned int numFrames,
     }
     
 //    // For sun???
-//    // copy
-//    memcpy( g_stereo_buffer, input, numFrames * 2 * sizeof(SAMPLE) );
-//    // convert stereo to mono
-//    for (int i = 0; i < numFrames; i++) {
-//        g_audio_buffer[i] = g_stereo_buffer[i*2] + g_stereo_buffer[i*2+1];
-//        g_audio_buffer[i] /= 2.0f;
-//    }
+    // copy
+    memcpy( g_stereo_buffer, input, numFrames * 2 * sizeof(SAMPLE) );
+    // convert stereo to mono
+    for (int i = 0; i < numFrames; i++) {
+        g_audio_buffer[i] = g_stereo_buffer[i*2] + g_stereo_buffer[i*2+1];
+        g_audio_buffer[i] /= 2.0f;
+    }
     
     
     
@@ -199,11 +200,15 @@ int main (int argc, char ** argv) {
         
         // stop the stream.
         audio.stopStream();
+        
     } catch (RtError& e) {
         // print error message
         cout << e.getMessage() << endl;
         goto cleanup;
     }
+    
+    // make the transform window
+    hanning( g_window, g_bufferSize ); // USED TO BE G_BUFFER_SIZE
     
 cleanup:
     // close if open
@@ -398,39 +403,48 @@ void idleFunc() {
 // Name: displayFunc()
 // Desc: callback function invoked to draw the client area
 //-----------------------------------------------------------------------------
-void displayFunc( )
-{
+void displayFunc() {
     // local state
     static GLfloat zrot = 0.0f, c = 0.0f;
     
-//    // local variables
-//    SAMPLE * buffer = g_fft_buffer;
+    // local variables
+    SAMPLE * buffer = g_fft_buffer;
     
     // clear the color and depth buffers
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-//    // copy currently playing audio into buffer
-//    memcpy( buffer, g_audio_buffer, g_buffer_size * sizeof(SAMPLE) );
+    // get the latest (possibly preview) window
+    memset( buffer, 0, SND_FFT_SIZE * sizeof(SAMPLE) );
+    
+    // copy currently playing audio into buffer
+    memcpy( buffer, g_audio_buffer, g_bufferSize * sizeof(SAMPLE) );
+    
 //    drawSun( g_stereo_buffer, g_buffer_size, 1 );
     
+    apply_window((float*)buffer, g_window, g_bufferSize); //USED TO BE g_buffer_size
+    
     // line width
-    glLineWidth( 1.0 );
+    glLineWidth(1.0);
     // define a starting point
-    GLfloat x = -5;
+    GLfloat x = -2.0f;
+    GLfloat y = 0.0f;
     // increment
     GLfloat xinc = ::fabs(x*2 / g_bufferSize);
     
+//    glScalef( 3.6, 2.0, 1.0 );
+    
     // color
-    glColor3f( .5, 1, .5 );
+    glColor3ub(191, 191, 191);
     
     // start primitive
-    glBegin( GL_LINE_STRIP );
+    glBegin(GL_LINE_STRIP);
     
     // loop over buffer
-    for( int i = 0; i < g_bufferSize; i++ )
-    {
+    for (int i = 0; i < g_bufferSize; i++) {
+        y =5.0*buffer[i];
+//        fprintf(stderr, "y value: %f", y);
         // plot
-        glVertex2f( x, 3*g_buffer[i] );
+        glVertex2f(x, y);
         // increment x
         x += xinc;
     }
@@ -439,7 +453,7 @@ void displayFunc( )
     glEnd();
     
     // flush!
-    glFlush( );
+    glFlush();
     // swap the double buffer
-    glutSwapBuffers( );
+    glutSwapBuffers();
 }

@@ -8,4 +8,4 @@ host/VisualSine.o: host/VisualSine.cpp host/RtAudio/RtAudio.h \
   core/util_buffers.h core/chuck_shell.h core/ulib_machine.h \
   core/chuck_otf.h core/util_network.h core/util_math.h \
   core/util_string.h core/hidio_sdl.h core/util_hid.h \
-  core/midiio_rtmidi.h core/rtmidi.h
+  core/midiio_rtmidi.h core/rtmidi.h core/chuck_fft.h

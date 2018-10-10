@@ -126,14 +126,18 @@ int callme (void * outputBuffer, void * inputBuffer, unsigned int numFrames,
         }
     }
     
-//    // For sun???
-//    // copy
-//    memcpy( g_stereo_buffer, input, numFrames * 2 * sizeof(SAMPLE) );
-//    // convert stereo to mono
-//    for (int i = 0; i < numFrames; i++) {
-//        g_audio_buffer[i] = g_stereo_buffer[i*2] + g_stereo_buffer[i*2+1];
-//        g_audio_buffer[i] /= 2.0f;
-//    }
+    // copy
+    memcpy( g_stereo_buffer, input, numFrames * 2 * sizeof(SAMPLE) );
+
+    // convert stereo to mono
+    for (int i = 0; i < numFrames; i++) {
+//        fprintf(stderr, "Stereo[%d]: %f ", i, g_stereo_buffer[i]);
+//        fprintf(stderr, "Calc[%d]: %f ", i, g_stereo_buffer[i*2] + g_stereo_buffer[i*2+1]);
+        g_audio_buffer[i] = g_stereo_buffer[i*2] + g_stereo_buffer[i*2+1];
+        g_audio_buffer[i] /= 2.0f;
+//        fprintf(stderr, "Audio[%d]: %f\n", i, g_audio_buffer[i]);
+//        fprintf(stderr, "Stereo buffer[%d]: %f", i, g_stereo_buffer[i]);
+    }
     
     
     
@@ -506,6 +510,42 @@ void drawTime() {
 }
 
 //-----------------------------------------------------------------------------
+// Name: drawTime()
+// Desc: draw time domain
+//-----------------------------------------------------------------------------
+void drawRainbowLol() {
+    // save the current matrix state
+    glPushMatrix();
+    // line width
+    glLineWidth(1.0f);
+//    // define a starting point
+//    GLfloat x = -5.0f;
+//    // increment
+//    GLfloat xinc = ::fabs(x*2 / g_bufferSize);
+    
+    // color
+    glColor3ub(255, 0, 0);
+    
+    // start primitive
+    glBegin(GL_LINE_STRIP);
+    glVertex2f(0.0f, 2.0f);
+    glVertex2f(4.0f, 4.0f);
+    
+//    // loop over buffer
+//    for (int i = 0; i < g_bufferSize; i++) {
+//        // plot
+//        glVertex2f(x, 3*g_buffer[i]+1.0f);
+//        // increment x
+//        x += xinc;
+//    }
+    
+    // end primitive
+    glEnd();
+    // restore previous matrix state
+    glPopMatrix();
+}
+
+//-----------------------------------------------------------------------------
 // Name: displayFunc()
 // Desc: callback function invoked to draw the client area
 //-----------------------------------------------------------------------------
@@ -520,13 +560,19 @@ void displayFunc( )
     // clear the color and depth buffers
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     
+    // get the latest (possibly preview) window
+    memset( buffer, 0, SND_FFT_SIZE * sizeof(SAMPLE) );
+    
+    // copy currently playing audio into buffer
+    memcpy( buffer, g_audio_buffer, g_bufferSize * sizeof(SAMPLE) );
+
 //    // copy currently playing audio into buffer
-//    memcpy( buffer, g_audio_buffer, g_buffer_size * sizeof(SAMPLE) );
 //    drawSun( g_stereo_buffer, g_buffer_size, 1 );
     
     // draw time domain
     drawTime();
     
+    /*
     // take forward FFT; result in buffer as FFT_SIZE/2 complex values
     rfft( (float *)buffer, g_fft_size/2, FFT_FORWARD );
     // cast to complex
@@ -553,7 +599,7 @@ void displayFunc( )
     
     // draw the right things
     g_draw[g_wf] = true; //Might not need this line
-    /*Might mneed stuff for g_starting*/
+    //Might mneed stuff for g_starting//
     g_draw[(g_wf+g_wf_delay)%g_depth] = true;
     
     // reset drawing variables
@@ -590,6 +636,7 @@ void displayFunc( )
     
     // restore matrix state
     glPopMatrix();
+    */
     
     
     

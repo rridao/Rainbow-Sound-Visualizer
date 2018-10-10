@@ -485,7 +485,7 @@ void drawTime() {
     // line width
     glLineWidth(1.0f);
     // define a starting point
-    GLfloat x = -2.0f;
+    GLfloat x = -1.5f;
     // increment
     GLfloat xinc = ::fabs(x*2 / g_bufferSize);
     
@@ -594,9 +594,8 @@ void displayFunc( )
     // draw time domain
     drawTime();
     
-    drawRainbowLol();
+//    drawRainbowLol();
     
-    /*
     // take forward FFT; result in buffer as FFT_SIZE/2 complex values
     rfft( (float *)buffer, g_fft_size/2, FFT_FORWARD );
     // cast to complex
@@ -641,26 +640,80 @@ void displayFunc( )
     
     // get the magnitude spectrum of layer
     Pt2D * pt = g_spectrums[(g_wf)%g_depth];
-  
     // present
     glLineWidth(2.0f);
-    glColor3f( .4f, 1.0f, 1.0f );
-
-
+    //define start
+    x = -1.0f;
+    GLfloat y2 = -1.0f;
+    GLfloat xWidth = 0.5f, yWidth = 0.5f, length = 1.5f;
+    GLfloat temp = pt->y;
     
-    // render the actual spectrum layer
-    glBegin( GL_LINE_STRIP );
-    for( GLint j = 0; j < g_fft_size; j++, pt++ )
-    {
-        // draw the vertex
-        float d = 0.0f;
-        glVertex3f( g_log_positions[j], pt->y, d );
+    while (y2 < 4.0f) {
+        // get the magnitude spectrum of layer
+        pt = g_spectrums[(g_wf)%g_depth];
+    
+        glColor3ub(255,0,0);
+        // render the red spectrum layer
+        glBegin( GL_LINE_STRIP );
+        for (GLint j = 0; j < g_fft_size/6; j++, pt++) {
+            // draw the vertex
+            glVertex2f( g_log_positions[j]/1000+x, temp+y2);
+        }
+        glEnd();
+        
+        glColor3ub(255,127,0);
+        // render the red spectrum layer
+        glBegin( GL_LINE_STRIP );
+        for (GLint j = g_fft_size/6; j < g_fft_size/3; j++, pt++) {
+            // draw the vertex
+            glVertex2f( g_log_positions[j]/1000+x, temp+y2);
+        }
+        glEnd();
+        
+        glColor3ub(255,255,0);
+        // render the red spectrum layer
+        glBegin( GL_LINE_STRIP );
+        for (GLint j = g_fft_size/3; j < g_fft_size/2; j++, pt++) {
+            // draw the vertex
+            glVertex2f( g_log_positions[j]/1000+x, temp+y2);
+        }
+        glEnd();
+        
+//        glColor3ub(0,255,0);
+//        // render the red spectrum layer
+//        glBegin( GL_LINE_STRIP );
+//        for (GLint j = g_fft_size/2; j < g_fft_size/1.5f; j++, pt++) {
+//            // draw the vertex
+//            glVertex2f( g_log_positions[j]/1000+x, temp+y2);
+//        }
+//        glEnd();
+//
+//        glColor3ub(0,0,255);
+//        // render the red spectrum layer
+//        glBegin( GL_LINE_STRIP );
+//        for (GLint j = g_fft_size/1.5f; j < g_fft_size/0.83f; j++, pt++) {
+//            // draw the vertex
+//            glVertex2f( g_log_positions[j]/1000+x, temp+y2);
+//        }
+//        glEnd();
+//
+//        glColor3ub(148,0,211);
+//        // render the red spectrum layer
+//        glBegin( GL_LINE_STRIP );
+//        for (GLint j = g_fft_size/0.83f; j < g_fft_size; j++, pt++) {
+//            // draw the vertex
+//            glVertex2f( g_log_positions[j]/1000+x, temp+y2);
+//        }
+//        glEnd();
+        
+        x += xWidth;
+        y2 += yWidth;
+
     }
-    glEnd();
     
     // restore matrix state
     glPopMatrix();
-    */
+    
     
     
     

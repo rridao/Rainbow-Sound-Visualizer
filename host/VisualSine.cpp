@@ -7,6 +7,7 @@
 //   uses: RtAudio by Gary Scavone
 //-----------------------------------------------------------------------------
 #include "RtAudio/RtAudio.h"
+#include "chuck_fft.h"
 #include "chuck.h"
 #include <math.h>
 #include <stdlib.h>
@@ -37,6 +38,8 @@ void keyboardFunc( unsigned char, int, int );
 void mouseFunc( int button, int state, int x, int y );
 //void drawSun( SAMPLE * stereobuffer, int len, int channels);
 void drawTime();
+inline double map_log_spacing( double ratio, double power );
+double compute_log_spacing( int fft_size, double factor );
 
 // our datetype
 #define SAMPLE float
@@ -74,10 +77,27 @@ SAMPLE g_stereo_buffer[SND_BUFFER_SIZE*2]; // current stereo buffer (now playing
 SAMPLE g_back_buffer[SND_BUFFER_SIZE]; // for lissajous
 SAMPLE g_cur_buffer[SND_BUFFER_SIZE];  // current mono buffer (now playing), for lissajous
 //GLfloat g_window[SND_BUFFER_SIZE]; // DFT transform window
-//GLfloat g_log_positions[SND_FFT_SIZE/2]; // precompute positions for log spacing
+GLfloat g_log_positions[SND_FFT_SIZE/2]; // precompute positions for log spacing
 //GLint g_buffer_size = SND_BUFFER_SIZE; //MIGHT NOT NEED
-//GLint g_fft_size = SND_FFT_SIZE;
+GLint g_fft_size = SND_FFT_SIZE;
 
+// for log scaling
+GLdouble g_log_space = 0;
+GLdouble g_log_factor = 1;
+
+// the index associated with the waterfall
+GLint g_wf = 0;
+
+// for waterfall
+struct Pt2D { float x; float y; };
+Pt2D ** g_spectrums = NULL;
+GLuint g_depth = 1;
+// array of booleans for waterfall
+GLboolean * g_draw = NULL;
+
+SAMPLE ** g_waveforms = NULL;
+GLfloat g_wf_delay_ratio = 1.0f / 3.0f;
+GLuint g_wf_delay = 0; //because there is no file yet (GLuint)(g_depth * g_wf_delay_ratio + .5f);
 
 //-----------------------------------------------------------------------------
 // name: callme()
@@ -190,6 +210,20 @@ int main (int argc, char ** argv) {
     // TODO: run a chuck program
     the_chuck -> compileFile("kermit.ck", "", 1);//, const std::string & argsTogether, int count = 1 );
     
+    // initialize audio
+    if( g_wf_delay )
+    {
+        fprintf(stderr, "g_wf_delay lol");
+        g_waveforms = new SAMPLE *[g_wf_delay];
+        for( int i = 0; i < g_wf_delay; i++ )
+        {
+            // allocate memory (stereo)
+            g_waveforms[i] = new SAMPLE[g_bufferSize * 2];
+            // zero it
+            memset( g_waveforms[i], 0, g_bufferSize * 2 * sizeof(SAMPLE) );
+        }
+    }
+    
     // go for it
     try {
         // start stream
@@ -216,7 +250,7 @@ cleanup:
 
 //-----------------------------------------------------------------------------
 // Name: initGfx()
-// Desc:
+// Desc: initialize graphics
 //-----------------------------------------------------------------------------
 void initGfx() {
     // double buffer, use rgb color, enable depth buffer
@@ -245,6 +279,48 @@ void initGfx() {
     glEnable( GL_COLOR_MATERIAL );
     // enable depth test
     glEnable( GL_DEPTH_TEST );
+    
+    // initialize for waterfall
+    g_spectrums = new Pt2D *[g_depth];
+    for( int i = 0; i < g_depth; i++ )
+    {
+        g_spectrums[i] = new Pt2D[SND_FFT_SIZE];
+        memset( g_spectrums[i], 0, sizeof(Pt2D)*SND_FFT_SIZE );
+    }
+    g_draw = new GLboolean[g_depth];
+    memset( g_draw, 0, sizeof(GLboolean)*g_depth );
+    // compute log spacing
+    g_log_space = compute_log_spacing( g_fft_size / 2, g_log_factor );
+}
+
+//-----------------------------------------------------------------------------
+// Name: map_log_spacing( )
+// Desc: ...
+//-----------------------------------------------------------------------------
+inline double map_log_spacing( double ratio, double power )
+{
+    // compute location
+    return ::pow(ratio, power) * g_fft_size;
+}
+
+//-----------------------------------------------------------------------------
+// Name: compute_log_spacing( )
+// Desc: ...
+//-----------------------------------------------------------------------------
+double compute_log_spacing( int fft_size, double power )
+{
+    int maxbin = fft_size; // for future in case we want to draw smaller range
+    int minbin = 0; // what about adding this one?
+    
+    for(int i = 0; i < fft_size; i++)
+    {
+        // compute location
+        g_log_positions[i] = map_log_spacing( (double)i/fft_size, power );
+        // normalize, 1 if maxbin == fft_size
+        g_log_positions[i] /= pow((double)maxbin/fft_size, power);
+    }
+    
+    return 1/::log(fft_size);
 }
 
 //-----------------------------------------------------------------------------
@@ -388,8 +464,8 @@ void idleFunc() {
     }
     glEnd();
     // restore matrix state
-    glPopMatrix();
-    
+//    glPopMatrix();
+ 
     // hmm...
     if( channels == 1 )
         memcpy( g_back_buffer, buffer, len * sizeof(SAMPLE) );
@@ -400,10 +476,12 @@ void idleFunc() {
 // Desc: draw time domain
 //-----------------------------------------------------------------------------
 void drawTime() {
+    // save the current matrix state
+    glPushMatrix();
     // line width
-    glLineWidth(1.0g);
+    glLineWidth(1.0f);
     // define a starting point
-    GLfloat x = -5;
+    GLfloat x = -5.0f;
     // increment
     GLfloat xinc = ::fabs(x*2 / g_bufferSize);
     
@@ -416,13 +494,15 @@ void drawTime() {
     // loop over buffer
     for (int i = 0; i < g_bufferSize; i++) {
         // plot
-        glVertex2f(x, 3*g_buffer[i]);
+        glVertex2f(x, 3*g_buffer[i]+1.0f);
         // increment x
         x += xinc;
     }
     
     // end primitive
     glEnd();
+    // restore previous matrix state
+    glPopMatrix();
 }
 
 //-----------------------------------------------------------------------------
@@ -434,8 +514,8 @@ void displayFunc( )
     // local state
     static GLfloat zrot = 0.0f, c = 0.0f;
     
-//    // local variables
-//    SAMPLE * buffer = g_fft_buffer;
+    // local variables
+    SAMPLE * buffer = g_fft_buffer;
     
     // clear the color and depth buffers
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -444,7 +524,74 @@ void displayFunc( )
 //    memcpy( buffer, g_audio_buffer, g_buffer_size * sizeof(SAMPLE) );
 //    drawSun( g_stereo_buffer, g_buffer_size, 1 );
     
+    // draw time domain
     drawTime();
+    
+    // take forward FFT; result in buffer as FFT_SIZE/2 complex values
+    rfft( (float *)buffer, g_fft_size/2, FFT_FORWARD );
+    // cast to complex
+    complex * cbuf = (complex *)buffer;
+    
+    // reset drawing offsets
+    GLfloat x = -1.8f, y = -1.0f, inc = 3.6f;
+    
+    // color the spectrum
+    glColor3f( 0.4f, 1.0f, 0.4f );
+    // set vertex normals
+    glNormal3f( 0.0f, 1.0f, 0.0f );
+    
+//    // copy current magnitude spectrum into waterfall memory
+//    for(int i = 0; i < g_fft_size/2; i++ )
+//    {
+//        // copy x cgoordinate
+//        g_spectrums[g_wf][i].x = x;
+//        // copy y, could have diff scaling, see sndpeek
+//        g_spectrums[g_wf][i].y = 1.8f * ::pow( 25 * cmp_abs( cbuf[i] ), .5 ) + y;
+//        // increment x
+//        x += inc * 2.0f;
+//    }
+    
+    // draw the right things
+    g_draw[g_wf] = true; //Might not need this line
+    /*Might mneed stuff for g_starting*/
+    g_draw[(g_wf+g_wf_delay)%g_depth] = true;
+    
+    // reset drawing variables
+    x = -1.8f;
+    inc = 3.6f / g_fft_size;
+    
+    // save current matrix state
+    glPushMatrix();
+    // translate in world coordinate
+//    glTranslatef( x, 0.0, 0.0 );
+    // scale it
+//    glScalef( inc, 1.0 , -0.12f);
+    
+    // --- 1 waterfall --- //
+    
+    // get the magnitude spectrum of layer
+    Pt2D * pt = g_spectrums[(g_wf)%g_depth];
+  
+    // present
+    glLineWidth(2.0f);
+    glColor3f( .4f, 1.0f, 1.0f );
+
+
+    
+    // render the actual spectrum layer
+    glBegin( GL_LINE_STRIP );
+    for( GLint j = 0; j < g_fft_size; j++, pt++ )
+    {
+        // draw the vertex
+        float d = 0.0f;
+        glVertex3f( g_log_positions[j], pt->y, d );
+    }
+    glEnd();
+    
+    // restore matrix state
+    glPopMatrix();
+    
+    
     
     // flush!
     glFlush( );

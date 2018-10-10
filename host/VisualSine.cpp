@@ -8,6 +8,7 @@
 //-----------------------------------------------------------------------------
 #include "RtAudio/RtAudio.h"
 #include "chuck.h"
+#include "chuck_fft.h"
 #include <math.h>
 #include <stdlib.h>
 #include <iostream>

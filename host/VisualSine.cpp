@@ -488,7 +488,7 @@ void drawTime() {
     // line width
     glLineWidth(1.0f);
     // define a starting point
-    GLfloat x = -1.5f;
+    GLfloat x = -1.5f+g_cloudRand, y = -2.0f+g_cloudRand;
     // increment
     GLfloat xinc = ::fabs(x*2 / g_bufferSize);
     
@@ -501,7 +501,7 @@ void drawTime() {
     // loop over buffer
     for (int i = 0; i < g_bufferSize; i++) {
         // plot
-        glVertex2f(x, 3*g_buffer[i]-2.0f);
+        glVertex2f(x, 3*g_buffer[i]+y);
         // increment x
         x += xinc;
     }
@@ -635,10 +635,10 @@ void displayFunc( )
 //    // copy currently playing audio into buffer
 //    drawSun( g_stereo_buffer, g_buffer_size, 1 );
     
-    // draw time domain
-    drawTime();
     // draw cloud
     drawCloud();
+    // draw time domain
+    drawTime();
     
 //    drawRainbowLol();
     

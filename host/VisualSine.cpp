@@ -485,7 +485,7 @@ void drawTime() {
     // line width
     glLineWidth(1.0f);
     // define a starting point
-    GLfloat x = -5.0f;
+    GLfloat x = -2.0f;
     // increment
     GLfloat xinc = ::fabs(x*2 / g_bufferSize);
     
@@ -498,7 +498,7 @@ void drawTime() {
     // loop over buffer
     for (int i = 0; i < g_bufferSize; i++) {
         // plot
-        glVertex2f(x, 3*g_buffer[i]+1.0f);
+        glVertex2f(x, 3*g_buffer[i]-2.0f);
         // increment x
         x += xinc;
     }
@@ -510,7 +510,7 @@ void drawTime() {
 }
 
 //-----------------------------------------------------------------------------
-// Name: drawTime()
+// Name: drawRainbow()
 // Desc: draw time domain
 //-----------------------------------------------------------------------------
 void drawRainbowLol() {
@@ -518,29 +518,51 @@ void drawRainbowLol() {
     glPushMatrix();
     // line width
     glLineWidth(1.0f);
-//    // define a starting point
-//    GLfloat x = -5.0f;
-//    // increment
-//    GLfloat xinc = ::fabs(x*2 / g_bufferSize);
     
-    // color
+    // distance between stripes
+    GLfloat width = 0.6f;
+    // define starting point
+    GLfloat xS = -1.5f, yS = -1.0f;
+    // define ending point
+    GLfloat xE = 1.5f, yE = 4.0f;
+    
+    // red
     glColor3ub(255, 0, 0);
-    
-    // start primitive
     glBegin(GL_LINE_STRIP);
-    glVertex2f(0.0f, 2.0f);
-    glVertex2f(4.0f, 4.0f);
-    
-//    // loop over buffer
-//    for (int i = 0; i < g_bufferSize; i++) {
-//        // plot
-//        glVertex2f(x, 3*g_buffer[i]+1.0f);
-//        // increment x
-//        x += xinc;
-//    }
-    
-    // end primitive
+    glVertex2f(xS, yS);
+    glVertex2f(xE, yE);
     glEnd();
+    // orange
+    glColor3ub(255,127, 0);
+    glBegin(GL_LINE_STRIP);
+    glVertex2f(xS+width, yS);
+    glVertex2f(xE+width, yE);
+    glEnd();
+    // yellow
+    glColor3ub(255, 255, 0);
+    glBegin(GL_LINE_STRIP);
+    glVertex2f(xS+width*2, yS);
+    glVertex2f(xE+width*2, yE);
+    glEnd();
+    // green
+    glColor3ub(0, 255, 0);
+    glBegin(GL_LINE_STRIP);
+    glVertex2f(xS+width*3, yS);
+    glVertex2f(xE+width*3, yE);
+    glEnd();
+    // blue
+    glColor3ub(0, 0, 255);
+    glBegin(GL_LINE_STRIP);
+    glVertex2f(xS+width*4, yS);
+    glVertex2f(xE+width*4, yE);
+    glEnd();
+    // purple
+    glColor3ub(148, 0, 211);
+    glBegin(GL_LINE_STRIP);
+    glVertex2f(xS+width*5, yS);
+    glVertex2f(xE+width*5, yE);
+    glEnd();
+    
     // restore previous matrix state
     glPopMatrix();
 }
@@ -571,6 +593,8 @@ void displayFunc( )
     
     // draw time domain
     drawTime();
+    
+    drawRainbowLol();
     
     /*
     // take forward FFT; result in buffer as FFT_SIZE/2 complex values

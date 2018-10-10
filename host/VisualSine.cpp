@@ -568,6 +568,35 @@ void drawRainbowLol() {
 }
 
 //-----------------------------------------------------------------------------
+// Name: drawCloud()
+// Desc: draw time domain
+//-----------------------------------------------------------------------------
+void drawCloud() {
+    // save the current matrix state
+    glPushMatrix();
+    // line width
+    glLineWidth(2.0f);
+    // color
+    glColor3ub(190, 190, 190);
+    
+    // start primitive
+    glBegin(GL_LINE_STRIP);
+    
+    // quarter cloud
+    glVertex2f(-0.0f, -1.0f);
+    glVertex2f(-0.75f, -1.25f);
+    glVertex2f(-1.5f, -1.0f);
+    glVertex2f(-2.5f, -1.5f);
+    glVertex2f(-2.2f, -2.0f);
+
+
+    // end primitive
+    glEnd();
+    // restore previous matrix state
+    glPopMatrix();
+}
+
+//-----------------------------------------------------------------------------
 // Name: displayFunc()
 // Desc: callback function invoked to draw the client area
 //-----------------------------------------------------------------------------
@@ -593,6 +622,8 @@ void displayFunc( )
     
     // draw time domain
     drawTime();
+    // draw cloud
+    drawCloud();
     
 //    drawRainbowLol();
     
@@ -644,7 +675,7 @@ void displayFunc( )
     glLineWidth(2.0f);
     //define start
     x = -1.0f;
-    GLfloat y2 = -1.0f;
+    GLfloat y2 = -0.75f;
     GLfloat xWidth = 0.5f, yWidth = 0.5f, length = 1.5f;
     GLfloat temp = pt->y;
     

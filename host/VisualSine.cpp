@@ -88,6 +88,9 @@ GLdouble g_log_factor = 1;
 // the index associated with the waterfall
 GLint g_wf = 0;
 
+GLint g_cloudCount = 0;
+GLfloat g_cloudRand = 0.0;
+
 // for waterfall
 struct Pt2D { float x; float y; };
 Pt2D ** g_spectrums = NULL;
@@ -583,12 +586,24 @@ void drawCloud() {
     glBegin(GL_LINE_STRIP);
     
     // quarter cloud
-    glVertex2f(-0.0f, -1.0f);
+    /*glVertex2f(0.0f, -1.0f);
     glVertex2f(-0.75f, -1.25f);
     glVertex2f(-1.5f, -1.0f);
     glVertex2f(-2.5f, -1.5f);
-    glVertex2f(-2.2f, -2.0f);
+    glVertex2f(-2.2f, -2.0f);*/
+    
+    if (g_cloudCount == 0) {
+        g_cloudRand = (rand() % 100 - 50)/500.0;
+        g_cloudCount = 50;
+    } else {
+        g_cloudCount--;
+    }
 
+    glVertex2f(0.0f+g_cloudRand, -1.0f+g_cloudRand);
+    glVertex2f(-0.75f+g_cloudRand, -1.25f+g_cloudRand);
+    glVertex2f(-1.5f+g_cloudRand, -1.0f+g_cloudRand);
+    glVertex2f(-2.5f+g_cloudRand, -1.5f+g_cloudRand);
+    glVertex2f(-2.2f+g_cloudRand, -2.0f+g_cloudRand);
 
     // end primitive
     glEnd();

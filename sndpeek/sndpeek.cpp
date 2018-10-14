@@ -1420,6 +1420,7 @@ void drawWaterfall( SAMPLE * buffer) {
     glColor3f( 0.4f, 1.0f, 0.4f );
     // set vertex normals
     glNormal3f( 0.0f, 1.0f, 0.0f );
+    glLineWidth(2.0f);
     
     // copy current magnitude spectrum into waterfall memory
     GLfloat specCalc, cutoff = -0.45f;
@@ -1454,7 +1455,8 @@ void drawWaterfall( SAMPLE * buffer) {
     // reset drawing variables
     x = -1.8f;
     inc = 3.6f / g_fft_size;
-    GLfloat width = 0.01f, yLevel = y;
+    GLfloat xWidth = 500.0f, xOffset = 300.0f;
+    GLfloat yWidth = 0.1f, yOffset = y;
     
     // save current matrix state
     glPushMatrix();
@@ -1463,7 +1465,7 @@ void drawWaterfall( SAMPLE * buffer) {
     // scale it
     glScalef( inc*g_freq_view , 1.0 , -g_space );
     
-    for (int k = 0; yLevel < 4.0f; k++) {
+    for (int k = 0; yOffset < 4.0f; k++) {
         for( i = 0; i < g_depth; i++ )
         {
             if( i == g_wf_delay || g_wutrfall ) // ||!g_freeze||
@@ -1476,17 +1478,25 @@ void drawWaterfall( SAMPLE * buffer) {
                     
                     // render the actual spectrum layer
                     glBegin( GL_LINE_STRIP );
-                    for( GLint j = 0; j < g_fft_size/g_freq_view/20; j++, pt++ )
+                    /*for( GLint j = 0; j < g_fft_size/g_freq_view/20; j++, pt++ )
                     {
                         // draw the vertex
                         float d = g_backwards ? g_depth - (float) i : (float) i;
-                        glVertex3f( g_log_positions[j]*10, pt->y+yLevel, 0.0f );
+                        glVertex3f( g_log_positions[j]*8, pt->y+yLevel, 0.0f );
+                    }*/
+                    GLint j = 0;
+                    
+                    while(g_log_positions[j] < xWidth && j < g_fft_size) {
+//                        if(j%10 == 0)
+//                            fprintf(stderr, "[%d]: %f", j, g_log_positions[j]);
+                        glVertex3f( g_log_positions[j]+xOffset, pt->y+yOffset, 0.0f );
+                        j++, pt++;
                     }
                     glEnd();
                     
                     // back to default line width
-                    glLineWidth(1.0f);
-                    yLevel += width;
+                    glLineWidth(2.0f);
+                    yOffset += yWidth;
                 }
             }
         }

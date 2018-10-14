@@ -251,7 +251,7 @@ GLboolean g_pause = FALSE;
 // array of booleans for waterfall
 GLboolean * g_draw = NULL;
 // rainbowish coloring of waterfall?
-GLboolean g_rainbow = FALSE;
+//GLboolean g_rainbow = FALSE;
 // which way the waterfall moves
 GLboolean g_backwards = FALSE;
 // show time
@@ -463,10 +463,10 @@ int main( int argc, char ** argv )
 //                g_draw_features = TRUE;
 //            else if( !strcmp(argv[i], "--features:OFF") )
 //                g_draw_features = FALSE;
-            else if( !strcmp(argv[i], "--fallcolors") || !strcmp(argv[i], "--fallcolors:ON") )
-                g_rainbow = TRUE;
-            else if( !strcmp(argv[i], "--fallcolors:OFF") )
-                g_rainbow = FALSE;
+//            else if( !strcmp(argv[i], "--fallcolors") || !strcmp(argv[i], "--fallcolors:ON") )
+//                g_rainbow = TRUE;
+//            else if( !strcmp(argv[i], "--fallcolors:OFF") )
+//                g_rainbow = FALSE;
             else if( !strcmp(argv[i], "--backward") || !strcmp(argv[i], "--backward:ON") )
                 g_backwards = TRUE;
             else if( !strcmp(argv[i], "--backward:OFF") )
@@ -1184,10 +1184,10 @@ void keyboardFunc( unsigned char key, int x, int y )
         g_log_space = compute_log_spacing( g_fft_size / 2, g_log_factor );
         fprintf( stderr, "[sndpeek]: logfactor:%f\n", g_log_factor );
     break;
-    case 'r':
-        g_rainbow = !g_rainbow;
-        fprintf( stderr, "[sndpeek]: fallcolors:%s\n", g_rainbow ? "ON" : "OFF" );
-    break;
+//    case 'r':
+//        g_rainbow = !g_rainbow;
+//        fprintf( stderr, "[sndpeek]: fallcolors:%s\n", g_rainbow ? "ON" : "OFF" );
+//    break;
     case 't':
         g_show_time = !g_show_time; 
         fprintf( stderr, "[sndpeek]: show time:%s\n", g_show_time ? "ON" : "OFF" ); 
@@ -1204,7 +1204,7 @@ void keyboardFunc( unsigned char key, int x, int y )
         fprintf( stderr, "[sndpeek]: lissajous:%s\n", g_lissajous ? "ON" : "OFF" );
         fprintf( stderr, "[sndpeek]: waterfall:%s\n", g_wutrfall ? "ON" : "OFF" );
 //        fprintf( stderr, "[sndpeek]: features:%s\n", g_draw_features ? "ON" : "OFF" );
-        fprintf( stderr, "[sndpeek]: fallcolors:%s\n", g_rainbow ? "ON" : "OFF" );
+//        fprintf( stderr, "[sndpeek]: fallcolors:%s\n", g_rainbow ? "ON" : "OFF" );
         fprintf( stderr, "[sndpeek]: backward:%s\n", g_backwards ? "ON" : "OFF" );
         fprintf( stderr, "[sndpeek]: fullscreen:%s\n", g_fullscreen ? "ON" : "OFF" );
         fprintf( stderr, "[sndpeek]: dB:%s\n", g_usedb ? "ON" : "OFF" );
@@ -1566,15 +1566,15 @@ void displayFunc( )
                     // brightness based on depth
                     fval = (g_depth - g_wf_delay + i) / (float)(g_depth);
                     // rain or not
-                    if( !g_rainbow ){
+//                    if( !g_rainbow ){
                         glColor3f( 1.0 * fval, .7 * fval, .4 * fval ); // depth cue
                         // interesting colors: (.7, 1, .2), (.4, .9. 1), (1.0, 0.7, 0.2)
-                    } else {
-                        // rainbow colors
-                        float cval = 1 - (g_wf_delay - i) / (float)(g_wf_delay);
-                        cval = 0.4f + cval * (1.0f - 0.4f);
-                        glColor3f( 1.0f * fval, cval * fval, .4f * fval );
-                    }
+//                    } else {
+//                        // rainbow colors
+//                        float cval = 1 - (g_wf_delay - i) / (float)(g_wf_delay);
+//                        cval = 0.4f + cval * (1.0f - 0.4f);
+//                        glColor3f( 1.0f * fval, cval * fval, .4f * fval );
+//                    }
                 }
                 // present
                 else if( i == g_wf_delay )
@@ -1592,14 +1592,14 @@ void displayFunc( )
                     // brightness based on depth
                     fval = (g_depth - i + g_wf_delay) / (float)(g_depth);
                     // draw rainbow?
-                    if( !g_rainbow ) {
+//                    if( !g_rainbow ) {
                         glColor3f( .4f * fval, 1.0f * fval, .4f * fval ); //depth cue
-                    } else {
-                        // rainbow-ish
-                        float cval = 1 - (i - g_wf_delay) / (float)(g_depth - g_wf_delay);
-                        cval = 0.4f + cval * (1.0f - 0.4f);
-                        glColor3f( cval * fval, 1.0f * fval, .4f * fval );
-                    }
+//                    } else {
+//                        // rainbow-ish
+//                        float cval = 1 - (i - g_wf_delay) / (float)(g_depth - g_wf_delay);
+//                        cval = 0.4f + cval * (1.0f - 0.4f);
+//                        glColor3f( cval * fval, 1.0f * fval, .4f * fval );
+//                    }
                 }
 
                 // render the actual spectrum layer

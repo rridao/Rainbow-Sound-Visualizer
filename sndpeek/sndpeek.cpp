@@ -1367,7 +1367,7 @@ void drawLissajous( SAMPLE * stereobuffer, int len, int channels)
 
 void drawWaveform( SAMPLE * buffer ) {
     // soon to be used drawing offsets
-    GLfloat x = -1.8f, inc = 3.6f / g_buffer_size, y = .7f;
+    GLfloat x = -1.8f, inc = 3.6f / g_buffer_size, y = -1.0f;
     // apply the transform window
     apply_window( (float*)buffer, g_window, g_buffer_size );
     
@@ -1377,7 +1377,7 @@ void drawWaveform( SAMPLE * buffer ) {
         // save the current matrix state
         glPushMatrix();
         // color waveform
-        glColor3f( 0.4f, 0.4f, 1.0f );
+        glColor3ub( 119, 119, 119 );
         // translate the waveform
         glTranslatef( x, y, 0.0f );
         // scale visually
@@ -1511,7 +1511,7 @@ void displayFunc( )
 
     // reset drawing offsets
     x = -1.8f;
-    y = -1.0f;
+    y = -0.5f;
 
     // color the spectrum
     glColor3f( 0.4f, 1.0f, 0.4f );

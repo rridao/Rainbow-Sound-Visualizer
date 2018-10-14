@@ -233,7 +233,7 @@ GLboolean g_lissajous = TRUE;
 // plot waterfall
 GLboolean g_wutrfall = TRUE;
 // draw analysis features
-GLboolean g_draw_features = TRUE;
+//GLboolean g_draw_features = TRUE;
 // freeze display
 GLboolean g_freeze = FALSE;
 // mute audio
@@ -459,10 +459,10 @@ int main( int argc, char ** argv )
                 g_usedb = TRUE;
             else if( !strcmp(argv[i], "--dB:OFF") )
                 g_usedb = FALSE;
-            else if( !strcmp(argv[i], "--features") || !strcmp(argv[i], "--features:ON") )
-                g_draw_features = TRUE;
-            else if( !strcmp(argv[i], "--features:OFF") )
-                g_draw_features = FALSE;
+//            else if( !strcmp(argv[i], "--features") || !strcmp(argv[i], "--features:ON") )
+//                g_draw_features = TRUE;
+//            else if( !strcmp(argv[i], "--features:OFF") )
+//                g_draw_features = FALSE;
             else if( !strcmp(argv[i], "--fallcolors") || !strcmp(argv[i], "--fallcolors:ON") )
                 g_rainbow = TRUE;
             else if( !strcmp(argv[i], "--fallcolors:OFF") )
@@ -1070,10 +1070,10 @@ void keyboardFunc( unsigned char key, int x, int y )
         g_usedb = !g_usedb;
         fprintf( stderr, "[sndpeek]: dB:%s\n", g_usedb ? "ON" : "OFF" );
     break;
-    case '4':
-        g_draw_features = !g_draw_features;
-        fprintf( stderr, "[sndpeek]: features:%s\n", g_draw_features ? "ON" : "OFF" );
-    break;
+//    case '4':
+//        g_draw_features = !g_draw_features;
+//        fprintf( stderr, "[sndpeek]: features:%s\n", g_draw_features ? "ON" : "OFF" );
+//    break;
     case 'q':
         exit( 0 );
     break;
@@ -1203,7 +1203,7 @@ void keyboardFunc( unsigned char key, int x, int y )
         fprintf( stderr, "[sndpeek]: waveform:%s\n", g_waveform ? "ON" : "OFF" );
         fprintf( stderr, "[sndpeek]: lissajous:%s\n", g_lissajous ? "ON" : "OFF" );
         fprintf( stderr, "[sndpeek]: waterfall:%s\n", g_wutrfall ? "ON" : "OFF" );
-        fprintf( stderr, "[sndpeek]: features:%s\n", g_draw_features ? "ON" : "OFF" );
+//        fprintf( stderr, "[sndpeek]: features:%s\n", g_draw_features ? "ON" : "OFF" );
         fprintf( stderr, "[sndpeek]: fallcolors:%s\n", g_rainbow ? "ON" : "OFF" );
         fprintf( stderr, "[sndpeek]: backward:%s\n", g_backwards ? "ON" : "OFF" );
         fprintf( stderr, "[sndpeek]: fullscreen:%s\n", g_fullscreen ? "ON" : "OFF" );
@@ -1627,6 +1627,7 @@ void displayFunc( )
                 g_starting = 0;
         }
 
+    /*
         // calculate and draw features
         if( g_draw_features )
         {
@@ -1763,7 +1764,7 @@ void displayFunc( )
 
         // mute?
         if( g_mute )
-            draw_string( 0.95f, 1.05f, -.2f, "muted... (press m to unmute)", .4f );
+            draw_string( 0.95f, 1.05f, -.2f, "muted... (press m to unmute)", .4f );*/
 
     // restore matrix state
     glPopMatrix( );

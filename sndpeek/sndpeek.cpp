@@ -1424,6 +1424,7 @@ void drawWaterfall( SAMPLE * buffer) {
     
     // copy current magnitude spectrum into waterfall memory
     GLfloat specCalc, cutoff = -0.44f;
+    
     for( int i = 0; i < g_fft_size/2; i++ )
     {
         // copy x coordinate
@@ -1456,7 +1457,7 @@ void drawWaterfall( SAMPLE * buffer) {
     x = -1.8f;
     inc = 3.6f / g_fft_size;
     GLfloat xWidth = 400.0f, xOffset = 300.0f;
-    GLfloat yWidth = 0.1f, yOffset = y;
+    GLfloat yWidth = 0.05f, yOffset = y;
     GLint rainbowRow = 0;
     
     // save current matrix state
@@ -1509,7 +1510,7 @@ void drawWaterfall( SAMPLE * buffer) {
                     
                     // back to default line width
 //                    glLineWidth(2.0f);
-                    xOffset += rainbowRow;
+                    xOffset += rainbowRow*yWidth;
                     yOffset += yWidth;
                     rainbowRow++;
                 }

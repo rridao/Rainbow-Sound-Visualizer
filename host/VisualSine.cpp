@@ -130,13 +130,14 @@ int callme (void * outputBuffer, void * inputBuffer, unsigned int numFrames,
     }
     
     // copy
-    memcpy( g_stereo_buffer, input, numFrames * 2 * sizeof(SAMPLE) );
-
+    //memcpy( g_stereo_buffer, input, numFrames * 2 * sizeof(SAMPLE) );
+    memcpy(g_audio_buffer, input, numFrames * sizeof(SAMPLE));
+    
     // convert stereo to mono
     for (int i = 0; i < numFrames; i++) {
 //        fprintf(stderr, "Stereo[%d]: %f ", i, g_stereo_buffer[i]);
 //        fprintf(stderr, "Calc[%d]: %f ", i, g_stereo_buffer[i*2] + g_stereo_buffer[i*2+1]);
-        g_audio_buffer[i] = g_stereo_buffer[i*2] + g_stereo_buffer[i*2+1];
+       // g_audio_buffer[i] = g_stereo_buffer; //g_stereo_buffer[i*2] + g_stereo_buffer[i*2+1];
         g_audio_buffer[i] /= 2.0f;
 //        fprintf(stderr, "Audio[%d]: %f\n", i, g_audio_buffer[i]);
 //        fprintf(stderr, "Stereo buffer[%d]: %f", i, g_stereo_buffer[i]);
@@ -631,7 +632,7 @@ void displayFunc( )
     
     // copy currently playing audio into buffer
     memcpy( buffer, g_audio_buffer, g_bufferSize * sizeof(SAMPLE) );
-
+    
 //    // copy currently playing audio into buffer
 //    drawSun( g_stereo_buffer, g_buffer_size, 1 );
     

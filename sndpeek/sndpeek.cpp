@@ -276,7 +276,7 @@ GLint g_buffer_count_b = 0;
 // for waterfall
 struct Pt2D { float x; float y; };
 Pt2D ** g_spectrums = NULL;
-GLuint g_depth = 48; // for john: 64
+GLuint g_depth = 1024; // for john: 64
 GLfloat g_z = 0.0f;
 GLboolean g_z_set = FALSE;
 GLfloat g_space = .12f; // for john: .1f
@@ -1481,6 +1481,7 @@ void drawWaterfall( SAMPLE * buffer) {
                     // get the magnitude spectrum of layer
                     Pt2D * pt = g_spectrums[(g_wf+i)%g_depth];
                     // future
+                    /*
                     if( i < g_wf_delay )
                     {
                         // brightness based on depth
@@ -1523,14 +1524,15 @@ void drawWaterfall( SAMPLE * buffer) {
                         //                        glColor3f( cval * fval, 1.0f * fval, .4f * fval );
                         //                    }
                     }
+                     */
                     
                     // render the actual spectrum layer
                     glBegin( GL_LINE_STRIP );
-                    for( GLint j = 0; j < g_fft_size/g_freq_view; j++, pt++ )
+                    for( GLint j = 0; j < g_fft_size/g_freq_view/20; j++, pt++ )
                     {
                         // draw the vertex
                         float d = g_backwards ? g_depth - (float) i : (float) i;
-                        glVertex3f( g_log_positions[j]*2, pt->y+yLevel, 0.0f );
+                        glVertex3f( g_log_positions[j]*10, pt->y+yLevel, 0.0f );
                     }
                     glEnd();
                     

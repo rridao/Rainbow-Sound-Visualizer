@@ -1488,6 +1488,7 @@ void displayFunc( )
     // unlock
     g_mutex.unlock();
 
+    /*
     // lissajous
     if( g_lissajous )
     {
@@ -1497,6 +1498,7 @@ void displayFunc( )
             drawLissajous( g_stereo_buffer, g_buffer_size, g_sf_info.channels );
         }
     }
+    */
 
     drawWaveform(buffer);
     

@@ -1446,6 +1446,7 @@ void drawWaterfall( SAMPLE * buffer) {
     // reset drawing variables
     x = -1.8f;
     inc = 3.6f / g_fft_size;
+    GLfloat width = 0.01f, yLevel = y;
     
     // save current matrix state
     glPushMatrix();
@@ -1453,73 +1454,94 @@ void drawWaterfall( SAMPLE * buffer) {
     glTranslatef( x, 0.0, g_z );
     // scale it
     glScalef( inc*g_freq_view , 1.0 , -g_space );
-    // loop through each layer of waterfall
-    for( i = 0; i < g_depth; i++ )
-    {
-        if( i == g_wf_delay || g_wutrfall ) // ||!g_freeze||
+    
+    // MY ATTEMPT //
+//    // loop through each layer of waterfall
+//    Pt2D * pt = g_spectrums[(1)%g_depth];
+////    for ( i = 0; y < 4.0f; i++ ){
+//        glBegin( GL_LINE_STRIP );
+//        for( GLint j = 0; j < g_fft_size/g_freq_view; j++)//, pt++ )
+//        {
+//            // draw the vertex
+//            //float d = g_backwards ? g_depth - (float) i : (float) i;
+//            glVertex3f( g_log_positions[j], pt->y, 0.0f );
+//        }
+//        glEnd();
+////    }
+    
+    
+    for (int k = 0; yLevel < 4.0f; k++) {
+        for( i = 0; i < g_depth; i++ )
         {
-            // if layer is flagged for draw
-            if( g_draw[(g_wf+i)%g_depth] )
+            if( i == g_wf_delay || g_wutrfall ) // ||!g_freeze||
             {
-                // get the magnitude spectrum of layer
-                Pt2D * pt = g_spectrums[(g_wf+i)%g_depth];
-                // future
-                if( i < g_wf_delay )
+                // if layer is flagged for draw
+                if( g_draw[(g_wf+i)%g_depth] )
                 {
-                    // brightness based on depth
-                    fval = (g_depth - g_wf_delay + i) / (float)(g_depth);
-                    // rain or not
-                    //                    if( !g_rainbow ){
-                    glColor3f( 1.0 * fval, .7 * fval, .4 * fval ); // depth cue
-                    // interesting colors: (.7, 1, .2), (.4, .9. 1), (1.0, 0.7, 0.2)
-                    //                    } else {
-                    //                        // rainbow colors
-                    //                        float cval = 1 - (g_wf_delay - i) / (float)(g_wf_delay);
-                    //                        cval = 0.4f + cval * (1.0f - 0.4f);
-                    //                        glColor3f( 1.0f * fval, cval * fval, .4f * fval );
-                    //                    }
-                }
-                // present
-                else if( i == g_wf_delay )
-                {
-                    // draw the now line?
-                    if( g_draw_play )
+                    // get the magnitude spectrum of layer
+                    Pt2D * pt = g_spectrums[(g_wf+i)%g_depth];
+                    // future
+                    if( i < g_wf_delay )
                     {
-                        glLineWidth( g_filename == NULL ? 2.0f : 3.0f );
-                        glColor3f( .4f, 1.0f, 1.0f );
+                        // brightness based on depth
+                        fval = (g_depth - g_wf_delay + i) / (float)(g_depth);
+                        // rain or not
+                        //                    if( !g_rainbow ){
+//                        glColor3f( 1.0 * fval, .7 * fval, .4 * fval ); // depth cue
+                        glColor3f( 0.4f, 1.0f, 0.4f );
+                        // interesting colors: (.7, 1, .2), (.4, .9. 1), (1.0, 0.7, 0.2)
+                        //                    } else {
+                        //                        // rainbow colors
+                        //                        float cval = 1 - (g_wf_delay - i) / (float)(g_wf_delay);
+                        //                        cval = 0.4f + cval * (1.0f - 0.4f);
+                        //                        glColor3f( 1.0f * fval, cval * fval, .4f * fval );
+                        //                    }
                     }
+                    // present
+                    else if( i == g_wf_delay )
+                    {
+                        // draw the now line?
+                        if( g_draw_play )
+                        {
+                            glLineWidth( g_filename == NULL ? 2.0f : 3.0f );
+                            glColor3f( .4f, 1.0f, 1.0f );
+                        }
+                    }
+                    // past
+                    else
+                    {
+                        // brightness based on depth
+//                        fval = (g_depth - i + g_wf_delay) / (float)(g_depth);
+                        // draw rainbow?
+                        //                    if( !g_rainbow ) {
+//                        glColor3f( .4f * fval, 1.0f * fval, .4f * fval ); //depth cue
+                        glColor3f( 0.4f, 1.0f, 0.4f );
+                        //                    } else {
+                        //                        // rainbow-ish
+                        //                        float cval = 1 - (i - g_wf_delay) / (float)(g_depth - g_wf_delay);
+                        //                        cval = 0.4f + cval * (1.0f - 0.4f);
+                        //                        glColor3f( cval * fval, 1.0f * fval, .4f * fval );
+                        //                    }
+                    }
+                    
+                    // render the actual spectrum layer
+                    glBegin( GL_LINE_STRIP );
+                    for( GLint j = 0; j < g_fft_size/g_freq_view; j++, pt++ )
+                    {
+                        // draw the vertex
+                        float d = g_backwards ? g_depth - (float) i : (float) i;
+                        glVertex3f( g_log_positions[j]*2, pt->y+yLevel, 0.0f );
+                    }
+                    glEnd();
+                    
+                    // back to default line width
+                    glLineWidth(1.0f);
+                    yLevel += width;
                 }
-                // past
-                else
-                {
-                    // brightness based on depth
-                    fval = (g_depth - i + g_wf_delay) / (float)(g_depth);
-                    // draw rainbow?
-                    //                    if( !g_rainbow ) {
-                    glColor3f( .4f * fval, 1.0f * fval, .4f * fval ); //depth cue
-                    //                    } else {
-                    //                        // rainbow-ish
-                    //                        float cval = 1 - (i - g_wf_delay) / (float)(g_depth - g_wf_delay);
-                    //                        cval = 0.4f + cval * (1.0f - 0.4f);
-                    //                        glColor3f( cval * fval, 1.0f * fval, .4f * fval );
-                    //                    }
-                }
-                
-                // render the actual spectrum layer
-                glBegin( GL_LINE_STRIP );
-                for( GLint j = 0; j < g_fft_size/g_freq_view; j++, pt++ )
-                {
-                    // draw the vertex
-                    float d = g_backwards ? g_depth - (float) i : (float) i;
-                    glVertex3f( g_log_positions[j], pt->y, d );
-                }
-                glEnd();
-                
-                // back to default line width
-                glLineWidth(1.0f);
             }
         }
     }
+    
     // restore matrix state
     glPopMatrix();
     

@@ -1281,7 +1281,7 @@ void idleFunc( )
 
 
 
-//-----------------------------------------------------------------------------
+/*//-----------------------------------------------------------------------------
 // name: draw_string()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -1297,7 +1297,7 @@ void draw_string( GLfloat x, GLfloat y, GLfloat z, const char * str, GLfloat sca
         glutStrokeCharacter( GLUT_STROKE_ROMAN, str[i] );
     
     glPopMatrix();
-}
+}*/
 
 
 
@@ -1364,6 +1364,43 @@ void drawLissajous( SAMPLE * stereobuffer, int len, int channels)
         memcpy( g_back_buffer, buffer, len * sizeof(SAMPLE) );
 }
 
+
+void drawWaveform( SAMPLE * buffer ) {
+    // soon to be used drawing offsets
+    GLfloat x = -1.8f, inc = 3.6f / g_buffer_size, y = .7f;
+    // apply the transform window
+    apply_window( (float*)buffer, g_window, g_buffer_size );
+    
+    // draw the time domain waveform
+    if( g_waveform )
+    {
+        // save the current matrix state
+        glPushMatrix();
+        // color waveform
+        glColor3f( 0.4f, 0.4f, 1.0f );
+        // translate the waveform
+        glTranslatef( x, y, 0.0f );
+        // scale visually
+        glScalef( inc * g_time_view , g_gain * g_time_scale * 2.0, 1.0 );
+        // set vertex normals (for somewhat controlled lighting)
+        glNormal3f( 0.0f, 0.0f, 1.0f );
+        // draw waveform
+        glBegin( GL_LINE_STRIP );
+        {
+            GLint ii = ( g_buffer_size - (g_buffer_size/g_time_view) ) / 2;
+            GLfloat xcoord = 0.0f;
+            // loop through samples
+            for( int i = ii; i < ii + g_buffer_size / g_time_view; i++ )
+            {
+                glVertex2f( xcoord++ , buffer[i] );
+            }
+            glEnd();
+        }
+        // restore previous matrix state
+        glPopMatrix();
+    }
+
+}
 
 
 
@@ -1461,39 +1498,9 @@ void displayFunc( )
             }
         }
 
-        // soon to be used drawing offsets
-        GLfloat x = -1.8f, inc = 3.6f / g_buffer_size, y = .7f;
-        // apply the transform window
-        apply_window( (float*)buffer, g_window, g_buffer_size );
-
-        // draw the time domain waveform
-        if( g_waveform )
-        {
-            // save the current matrix state
-            glPushMatrix();
-            // color waveform
-            glColor3f( 0.4f, 0.4f, 1.0f );
-            // translate the waveform
-            glTranslatef( x, y, 0.0f );
-            // scale visually
-            glScalef( inc * g_time_view , g_gain * g_time_scale * 2.0, 1.0 );
-            // set vertex normals (for somewhat controlled lighting)
-            glNormal3f( 0.0f, 0.0f, 1.0f );
-            // draw waveform
-            glBegin( GL_LINE_STRIP );
-            {
-                GLint ii = ( g_buffer_size - (g_buffer_size/g_time_view) ) / 2;
-                GLfloat xcoord = 0.0f;
-                // loop through samples
-                for( i = ii; i < ii + g_buffer_size / g_time_view; i++ )
-                {
-                    glVertex2f( xcoord++ , buffer[i] );
-                }
-                glEnd();
-            }
-            // restore previous matrix state
-            glPopMatrix();
-        }
+    drawWaveform(buffer);
+    
+    GLfloat x, y, inc;
 
         // take forward FFT; result in buffer as FFT_SIZE/2 complex values
         rfft( (float *)buffer, g_fft_size/2, FFT_FORWARD );
@@ -1510,7 +1517,7 @@ void displayFunc( )
         glNormal3f( 0.0f, 1.0f, 0.0f );
 
         // copy current magnitude spectrum into waterfall memory
-        for( i = 0; i < g_fft_size/2; i++ )
+        for( int i = 0; i < g_fft_size/2; i++ )
         {
             // copy x coordinate
             g_spectrums[g_wf][i].x = x;
@@ -1621,7 +1628,7 @@ void displayFunc( )
             // advance index
             g_wf--;
             // mod
-            g_wf = (g_wf + g_depth) % g_depth; 
+            g_wf = (g_wf + g_depth) % g_depth;
             // can't remember what this does anymore...
             if( g_wf == g_depth - g_wf_delay )
                 g_starting = 0;

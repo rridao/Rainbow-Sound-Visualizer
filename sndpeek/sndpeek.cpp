@@ -235,7 +235,7 @@ GLboolean g_wutrfall = TRUE;
 // draw analysis features
 //GLboolean g_draw_features = TRUE;
 // freeze display
-GLboolean g_freeze = FALSE;
+//GLboolean g_freeze = FALSE;
 // mute audio
 GLboolean g_mute = FALSE;
 // use dB plot for spectrum
@@ -306,13 +306,13 @@ void help()
     fprintf( stderr, "'h' - print this help message\n" );
     fprintf( stderr, "'p' - print current settings to console\n" );
     fprintf( stderr, "'s' - toggle fullscreen\n" );
-    fprintf( stderr, "'f' - freeze frame! (can still rotate/scale)\n" );
+//    fprintf( stderr, "'f' - freeze frame! (can still rotate/scale)\n" );
     fprintf( stderr, "'1' - toggle waveform display\n" );
     fprintf( stderr, "'2' - toggle lissajous display\n" );
     fprintf( stderr, "'3' - (also 'w') toggle wutrfall display\n" );
     fprintf( stderr, "'4' - toggle feature extraction (broken)\n" );
     fprintf( stderr, "'d' - toggle dB plot for spectrum\n" );
-    fprintf( stderr, "'r' - toggle rainbow waterfall\n" );
+//    fprintf( stderr, "'r' - toggle rainbow waterfall\n" );
     fprintf( stderr, "'b' - toggle waterfall moving backwards/forwards\n" );
     fprintf( stderr, "'x' - restart file playback (if applicable)\n" );
     fprintf( stderr, "'p' - print current settings to terminal\n" );
@@ -475,10 +475,10 @@ int main( int argc, char ** argv )
                 g_show_time = TRUE;
             else if( !strcmp(argv[i], "--showtime:OFF") )
                 g_show_time = FALSE; 
-            else if( !strcmp(argv[i], "--freeze") || !strcmp(argv[i], "--freeze:ON") )
-                g_freeze = g_pause = TRUE;
-            else if( !strcmp(argv[i], "--freeze:OFF") )
-                g_freeze = g_pause = FALSE; 
+//            else if( !strcmp(argv[i], "--freeze") || !strcmp(argv[i], "--freeze:ON") )
+//                g_freeze = g_pause = TRUE;
+//            else if( !strcmp(argv[i], "--freeze:OFF") )
+//                g_freeze = g_pause = FALSE;
             else if( !strcmp(argv[i], "--drawplay") || !strcmp(argv[i], "--drawplay:ON") )
                 g_draw_play = set_play = TRUE;
             else if( !strcmp(argv[i], "--drawplay:OFF") )
@@ -667,11 +667,11 @@ int cb( void * outputBuffer, void * inputBuffer, unsigned int numFrames,
     SAMPLE * output = (SAMPLE *)outputBuffer;
 
     // freeze frame
-    if( g_freeze ) {
-        memset( output, 0, numFrames * 2 * sizeof(SAMPLE) );
-        g_ready = TRUE;
-        return 0;
-    }
+//    if( g_freeze ) {
+//        memset( output, 0, numFrames * 2 * sizeof(SAMPLE) );
+//        g_ready = TRUE;
+//        return 0;
+//    }
 
     // lock
     g_mutex.lock();
@@ -1170,10 +1170,10 @@ void keyboardFunc( unsigned char key, int x, int y )
         fprintf( stderr, "[sndpeek]: lissdelay = %i\n", g_delay );
     break;
     case 'z':
-    case 'f':
-        g_freeze = g_pause = !g_pause;
-        fprintf( stderr, "[sndpeek]: free(ze)!\n" );
-    break;
+//    case 'f':
+//        g_freeze = g_pause = !g_pause;
+//        fprintf( stderr, "[sndpeek]: free(ze)!\n" );
+//    break;
     case 'v':
         g_log_factor *= .98; //.99985;
         g_log_space = compute_log_spacing( g_fft_size / 2, g_log_factor );
@@ -1210,8 +1210,8 @@ void keyboardFunc( unsigned char key, int x, int y )
         fprintf( stderr, "[sndpeek]: dB:%s\n", g_usedb ? "ON" : "OFF" );
         fprintf( stderr, "[sndpeek]: mute:%s\n", g_mute ? "ON" : "OFF" );
         fprintf( stderr, "[sndpeek]: showtime:%s\n", g_show_time ? "ON" : "OFF" ); 
-        fprintf( stderr, "[sndpeek]: freeze:%s\n", g_freeze ? "ON" : "OFF" ); 
-        fprintf( stderr, "[sndpeek]: timescale:%f\n", g_time_scale ); 
+//        fprintf( stderr, "[sndpeek]: freeze:%s\n", g_freeze ? "ON" : "OFF" );
+        fprintf( stderr, "[sndpeek]: timescale:%f\n", g_time_scale );
         fprintf( stderr, "[sndpeek]: freqscale:%f\n", g_freq_scale );
         fprintf( stderr, "[sndpeek]: logfactor:%f\n", g_log_factor );
         fprintf( stderr, "[sndpeek]: lissscale:%f\n", g_lissajous_scale );
@@ -1553,7 +1553,7 @@ void displayFunc( )
     // loop through each layer of waterfall
     for( i = 0; i < g_depth; i++ )
     {
-        if( i == g_wf_delay || !g_freeze || g_wutrfall )
+        if( i == g_wf_delay || g_wutrfall ) // ||!g_freeze||
         {
             // if layer is flagged for draw
             if( g_draw[(g_wf+i)%g_depth] )
@@ -1625,8 +1625,8 @@ void displayFunc( )
         g_draw[(g_wf+g_wf_delay)%g_depth] = false;
 
     // wtrfll
-    if( !g_freeze )
-    {
+//    if( !g_freeze )
+//    {
         // advance index
         g_wf--;
         // mod
@@ -1634,7 +1634,7 @@ void displayFunc( )
         // can't remember what this does anymore...
         if( g_wf == g_depth - g_wf_delay )
             g_starting = 0;
-    }
+//    }
 
     /*
     // calculate and draw features

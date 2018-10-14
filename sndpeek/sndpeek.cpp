@@ -1404,7 +1404,7 @@ void drawWaveform( SAMPLE * buffer ) {
 
 
 void drawWaterfall( SAMPLE * buffer) {
-    GLfloat fval, x = -1.8f, y = -0.5, inc = 3.6f / g_buffer_size;
+    GLfloat fval, x = -1.8f, y = -0.4f, inc = 3.6f / g_buffer_size;
     GLint i;
     
     // take forward FFT; result in buffer as FFT_SIZE/2 complex values
@@ -1423,7 +1423,7 @@ void drawWaterfall( SAMPLE * buffer) {
     glLineWidth(2.0f);
     
     // copy current magnitude spectrum into waterfall memory
-    GLfloat specCalc, cutoff = -0.45f;
+    GLfloat specCalc, cutoff = -0.44f;
     for( int i = 0; i < g_fft_size/2; i++ )
     {
         // copy x coordinate
@@ -1455,8 +1455,9 @@ void drawWaterfall( SAMPLE * buffer) {
     // reset drawing variables
     x = -1.8f;
     inc = 3.6f / g_fft_size;
-    GLfloat xWidth = 500.0f, xOffset = 300.0f;
+    GLfloat xWidth = 400.0f, xOffset = 300.0f;
     GLfloat yWidth = 0.1f, yOffset = y;
+    GLint rainbowRow = 0;
     
     // save current matrix state
     glPushMatrix();
@@ -1485,18 +1486,32 @@ void drawWaterfall( SAMPLE * buffer) {
                         glVertex3f( g_log_positions[j]*8, pt->y+yLevel, 0.0f );
                     }*/
                     GLint j = 0;
-                    
-                    while(g_log_positions[j] < xWidth && j < g_fft_size) {
-//                        if(j%10 == 0)
-//                            fprintf(stderr, "[%d]: %f", j, g_log_positions[j]);
-                        glVertex3f( g_log_positions[j]+xOffset, pt->y+yOffset, 0.0f );
+                    GLfloat xLogPos = g_log_positions[j];
+                    while (xLogPos < xWidth && j < g_fft_size) {
+                        if (xLogPos < xWidth/6) {
+                            glColor3ub(255,0,0);
+                        } else if (xLogPos > xWidth/6 && xLogPos < xWidth/3 ) {
+                            glColor3ub(255,127,0);
+                        } else if (xLogPos > xWidth/3 && xLogPos < xWidth/2) {
+                            glColor3ub(255,255,0);
+                        } else if (xLogPos > xWidth/2 && xLogPos < xWidth*2/3) {
+                            glColor3ub(0,255,0);
+                        } else if (xLogPos > xWidth*2/3 && xLogPos < xWidth*5/6) {
+                            glColor3ub(0,0,255);
+                        } else {
+                            glColor3ub(148,0,211);
+                        }
+                        glVertex2f( g_log_positions[j]+xOffset, pt->y+yOffset );
                         j++, pt++;
+                        xLogPos = g_log_positions[j];
                     }
                     glEnd();
                     
                     // back to default line width
-                    glLineWidth(2.0f);
+//                    glLineWidth(2.0f);
+                    xOffset += rainbowRow;
                     yOffset += yWidth;
+                    rainbowRow++;
                 }
             }
         }

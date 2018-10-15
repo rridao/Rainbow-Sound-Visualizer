@@ -5,7 +5,7 @@ SinOsc banjo2 => gB => dac;
 5.0 => gK.gain;
 0.3 => gB.gain;
 
-130::ms => dur tempo;
+130::ms => dur tempo; //130 is good
  
 // Initialize pitch //
 0 => banjo1.freq;
@@ -17,7 +17,7 @@ SinOsc banjo2 => gB => dac;
 spork ~ banjo(banjo1, banjo2, tempo);
 spork ~ singer(kermit, tempo, bLength);
 bLength*tempo => now;
-0.2 => gB.gain;
+0.3 => gB.gain;
 
 
 // Banjos //
@@ -48,12 +48,15 @@ fun void banjo(Osc @ b1, Osc @ b2, dur t) {
         t*intro[2][i] => now;             // Assign time
     }
     
-    14 => int numSong;
+    8 => int numSong;
     int song[3][numSong];
+    [ 57, 73, 66, 69, 59, 66, 64, 68 ] @=> song[0];
+    [  0, 64,  0, 73,  0, 69,  0, 71 ] @=> song[1];
+    [  4,  8,  4,  8,  4,  8,  4,  8 ] @=> song[2];
     
     for(0 => int i; i < numSong; i++) {
-        Std.mtof(song[0][i]-12) => b1.freq; // Assign freq
-        Std.mtof(song[1][i]-12) => b2.freq; // Assign freq
+        Std.mtof(song[0][i]) => b1.freq; // Assign freq
+        Std.mtof(song[1][i] ) => b2.freq; // Assign freq
         t*song[2][i] => now;             // Assign time
     }
     0 => b1.freq;

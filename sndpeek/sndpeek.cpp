@@ -120,7 +120,8 @@ double compute_log_spacing( int fft_size, double factor );
 //-----------------------------------------------------------------------------
 #define SAMPLE                  float
 #define RTAUDIO_FORMAT          RTAUDIO_FLOAT32
-#define NUM_CHANNELS            2
+#define NUM_CHANNELS_INPUT      1
+#define NUM_CHANNELS_OUTPUT     2
 #define SND_BUFFER_SIZE         1024
 #define SND_FFT_SIZE            ( SND_BUFFER_SIZE * 2 )
 #define SND_MARSYAS_SIZE        ( 512 )
@@ -168,6 +169,9 @@ Mutex g_mutex;
 // file reading
 SNDFILE * g_sf = NULL;
 SF_INFO g_sf_info;
+
+//bool g_drawSun = true;
+ChucK * the_chuck = NULL;
 
 // default sample rate
 #if defined(__LINUX_ALSA__) || defined(__LINUX_OSS__) || defined(__LINUX_JACK__)
@@ -300,9 +304,8 @@ GLuint g_wf_index = 0;
 void help()
 {
     fprintf( stderr, "----------------------------------------------------\n" );
-    fprintf( stderr, "sndpeek + wutrfall (1.4)\n" );
-    fprintf( stderr, "Ge Wang, Perry R. Cook, Ananya Misra\n" );
-    fprintf( stderr, "http://www.gewang.com/\n" );
+    fprintf( stderr, "The Rainbow Connection\n" );
+    fprintf( stderr, "Rachael Ridao\n" );
     fprintf( stderr, "----------------------------------------------------\n" );
     fprintf( stderr, "'h' - print this help message\n" );
     fprintf( stderr, "'p' - print current settings to console\n" );
@@ -553,6 +556,21 @@ int main( int argc, char ** argv )
         }
     }
 
+    // set up chuck
+    the_chuck = new ChucK();
+    
+    // TODO: set sample rate and number of in/out channels on our chuck
+//    the_chuck -> setParam("SAMPLE_RATE", g_srate);
+//    the_chuck -> setParam("INPUT_CHANNELS", NUM_CHANNELS_INPUT);
+//    the_chuck -> setParam("OUTPUT_CHANNELS", NUM_CHANNELS_OUTPUT);
+    
+    // TODO: initialize our chuck
+//    the_chuck -> init();
+    
+    // TODO: run a chuck program
+//    the_chuck -> compileFile("kermit.ck", "", 1);//, const std::string & argsTogether, int count = 1 );
+    
+    
     // compute delay, but disable delay if it's mic input
     g_wf_delay = g_filename ? (GLuint)(g_wf_delay_ratio * g_depth + .5f) : 0;
 
@@ -606,7 +624,7 @@ int main( int argc, char ** argv )
     
     // initialize analysis
     initialize_analysis( );
-    
+
     // intialize real-time audio
     if( !initialize_audio( ) )
     {
@@ -666,6 +684,8 @@ int cb( void * outputBuffer, void * inputBuffer, unsigned int numFrames,
     // cast to sample buffer
     SAMPLE * input = (SAMPLE *)inputBuffer;
     SAMPLE * output = (SAMPLE *)outputBuffer;
+    
+//    the_chuck -> run(input, output, numFrames);
 
     // freeze frame
 //    if( g_freeze ) {
@@ -857,10 +877,10 @@ bool initialize_audio( )
         // set input and output parameters
         RtAudio::StreamParameters iParams, oParams;
         iParams.deviceId = g_audioInputDevice;
-        iParams.nChannels = NUM_CHANNELS;
+        iParams.nChannels = NUM_CHANNELS_INPUT;
         iParams.firstChannel = 0;
         oParams.deviceId = g_audioOutputDevice;
-        oParams.nChannels = NUM_CHANNELS;
+        oParams.nChannels = NUM_CHANNELS_OUTPUT;
         oParams.firstChannel = 0;
 
         // create stream options
@@ -880,7 +900,7 @@ bool initialize_audio( )
             }
 
             // compute
-            bufferBytes = bufferFrames * NUM_CHANNELS * sizeof(SAMPLE);
+            bufferBytes = bufferFrames * NUM_CHANNELS_OUTPUT * sizeof(SAMPLE); //UNSURE IF IT IS OUTPUT
             // test RtAudio functionality for reporting latency.
             cerr << "[sndpeek]: stream latency: " << g_audio->getStreamLatency() << " frames..." << endl;
             

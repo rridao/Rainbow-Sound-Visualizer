@@ -175,7 +175,7 @@ public: // static functions
 
 protected:
     // chuck version
-//    static const char VERSION[];
+    static const char VERSION[];
     // number of VMs -- managed from VM constructor/destructors
     static t_CKUINT o_numVMs;
     

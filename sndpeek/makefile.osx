@@ -2,6 +2,7 @@ CC=gcc
 CPP=g++
 INCLUDES=-I../marsyas/
 MARSYAS_DIR=../marsyas/
+CORE_DIR=core/
 CFLAGS=-D__MACOSX_CORE__ $(INCLUDES) -O3 -c
 LIBS=-framework CoreAudio -framework CoreMIDI -framework CoreFoundation\
 	-framework OpenGL -framework GLUT -framework Foundation \
@@ -10,7 +11,7 @@ LIBS=-framework CoreAudio -framework CoreMIDI -framework CoreFoundation\
 OBJS=chuck_fft.o RtAudio.o Thread.o sndpeek.o Stk.o util_sndfile.o \
 	Centroid.o DownSampler.o Flux.o LPC.o MFCC.o RMS.o Rolloff.o \
 	System.o fvec.o AutoCorrelation.o Communicator.o Hamming.o \
-	MagFFT.o NormRMS.o MarSignal.o fmatrix.o
+	MagFFT.o NormRMS.o MarSignal.o fmatrix.o chuck.o
 
 sndpeek: $(OBJS)
 	$(CPP) -o $@ $(OBJS) $(LIBS)
@@ -62,6 +63,9 @@ MarSignal.o:
 
 fmatrix.o:
 	$(CC) $(CFLAGS) $(MARSYAS_DIR)$*.cpp
+
+chuck.o:
+	$(CC) $(CFLAGS) $(CORE_DIR)$*.cpp
 
 .o: $*.h
 

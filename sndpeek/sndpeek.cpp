@@ -583,7 +583,7 @@ int main( int argc, char ** argv )
         // set the window postion
         glutInitWindowPosition( 100, 100 );
         // create the window
-        glutCreateWindow( "sndpeek" );
+        glutCreateWindow( "Rainbow Connection" );
         // full screen
         if( g_fullscreen )
             glutFullScreen();

@@ -23,31 +23,35 @@ bLength*tempo => now;
 // Banjos //
 
 fun void banjo(Osc @ b1, Osc @ b2, dur t) {
-    9 => int numNotes; // length of song
-    int song[4][numNotes]; 
-    // song[0]: MIDI notes for banjo 1
-    // song[1]: MIDI notes for banjo 2
-    // song[2]: Num of 16th notes
+    9 => int numIntro; // length of song
+    int intro[3][numIntro]; 
+    // intro[0]: MIDI notes for banjo 1
+    // intro[1]: MIDI notes for banjo 2
+    // intro[2]: Num of 16th notes
     
-    [ 69, 76, 81, 76, 81, 76, 69, 78, 81 ] @=> song[0];
-    [  0,  0, 85,  0, 85,  0,  0,  0, 86 ] @=> song[1];
-    [  3,  1,  3,  1,  3,  1,  3,  1,  8 ] @=> song[2];
+    [ 69, 76, 81, 76, 81, 76, 69, 78, 81 ] @=> intro[0];
+    [  0,  0, 85,  0, 85,  0,  0,  0, 86 ] @=> intro[1];
+    [  3,  1,  3,  1,  3,  1,  3,  1,  8 ] @=> intro[2];
     
     
-    for(0 => int i; i < numNotes; i++) {
-        Std.mtof(song[0][i]-12) => b1.freq; // Assign freq
-        Std.mtof(song[1][i]-12) => b2.freq; // Assign freq
-        t*song[2][i] => now;             // Assign time
+    for(0 => int i; i < numIntro; i++) {
+        Std.mtof(intro[0][i]-12) => b1.freq; // Assign freq
+        Std.mtof(intro[1][i]-12) => b2.freq; // Assign freq
+        t*intro[2][i] => now;             // Assign time
     }
     //4*t => now;
     0 => b1.freq; 0 => b2.freq;
     12*t => now;
-    for(0 => int i; i < numNotes; i++) {
-        Std.mtof(song[0][i]-12) => b1.freq; // Assign freq
-        Std.mtof(song[1][i]-12) => b2.freq; // Assign freq
-        t*song[2][i] => now;             // Assign time
+    for(0 => int i; i < numIntro; i++) {
+        Std.mtof(intro[0][i]-12) => b1.freq; // Assign freq
+        Std.mtof(intro[1][i]-12) => b2.freq; // Assign freq
+        t*intro[2][i] => now;             // Assign time
     }
-    for(0 => int i; i < numNotes; i++) {
+    
+    14 => int numSong;
+    int song[3][numSong];
+    
+    for(0 => int i; i < numSong; i++) {
         Std.mtof(song[0][i]-12) => b1.freq; // Assign freq
         Std.mtof(song[1][i]-12) => b2.freq; // Assign freq
         t*song[2][i] => now;             // Assign time

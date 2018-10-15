@@ -59,6 +59,7 @@
 // STK
 #include "RtAudio.h"
 #include "Thread.h"
+#include "core/chuck.h"
 
 // OpenGL
 #if defined(__APPLE__)
